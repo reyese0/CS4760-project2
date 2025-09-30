@@ -9,6 +9,18 @@
 int shm_key;
 int shm_id;
 
+typedef struct {
+    int seconds;
+    int nanoseconds; 
+} Clock;
+
+typedef struct {
+    int occupied;
+    pid_t pid; 
+    int startSeconds;
+    int startNano; 
+} SystemClock;
+
 void print_help() {
     printf("How to use: oss [-h] [-s simul] [-t timelimitForChildren] [-i intervalInMsToLaunchChildren]\n");
     printf("  -h      Show help message\n");
@@ -69,22 +81,20 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    int shm_id = shmget(shm_key, sizeof(int)*2, IPC_CREAT | 0666);
+    int shm_id = shmget(shm_key, sizeof(Clock), IPC_CREAT | 0666);
     if (shm_id < 0) {
         fprintf(stderr,"Parent:... Error in shmget\n");
         exit(1);
     }
 
-    int *clock = (int *) shmat(shm_id, 0, 0);
+    Clock *clock = (Clock *) shmat(shm_id, 0, 0);
     if (clock <= 0) {
-        fprintf(stderr,"Parent:... Error in shmat\n");
+        fprintf(stderr,"OSS:... Error in shmat\n");
         exit(1);
     }
 
-    int *seconds = &(clock[0]);
-    int *nanoseconds = &(clock[1]);
-    *seconds = 0;
-    *nanoseconds = 0;
+    clock->seconds = 0;
+    clock->nanoseconds = 0;
 
     //launch worker processes
     pid_t child_pid = fork();
