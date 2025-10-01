@@ -72,7 +72,7 @@ int main(int argc, char *argv[]) {
         //check for termination condition
         if ( (currSec > endSec) || (currSec == endSec && currNano >= endNano) ) {
             printf("WORKER PID:%d PPID:%d\n", pid, ppid);
-            printf("SysClockS: %d SysclockNano: %d\n", currSec, currNano)
+            printf("SysClockS: %d SysclockNano: %d\n", currSec, currNano);
             printf("--Terminating\n");
             break;
         }
