@@ -35,25 +35,7 @@ void print_help() {
     printf("  -i interval in milliseconds between launching new child processes\n");
 }
 
-// Signal handler for alarm
-void signal_handler(int sig) {
-    printf("\nReceived SIGALRM (60 second timeout). Cleaning up...\n");
-    
-    // Send kill signal to all children based on their PIDs in process table
-    for (int i = 0; i < 20; i++) {
-        if (processTable[i].occupied && processTable[i].pid > 0) {
-            printf("Killing child process %d\n", processTable[i].pid);
-            kill(processTable[i].pid, SIGTERM);
-        }
-    }
-    
-    shmdt(clock);
-    clock = 0;
-    shmctl(shm_id,IPC_RMID,NULL);
-    
-    printf("OSS terminated due to 60 second timeout\n");
-    exit(1);
-}
+void signal_handler(int sig);
 
 int main(int argc, char *argv[]) {
     int totalChildren = 0;
@@ -64,12 +46,6 @@ int main(int argc, char *argv[]) {
     int childrenTerminated = 0;
     char opt;
     const char optstring[] = "hn:s:t:i:";
-
-    // Turn on alarm handler
-    signal(SIGALRM, signal_handler);
-    
-    // Set up alarm call for 60 seconds
-    alarm(60);
 
     while ((opt = getopt(argc, argv, optstring)) != -1) {
         switch (opt) {
@@ -283,9 +259,35 @@ int main(int argc, char *argv[]) {
     printf("%d workers were launched and terminated\n", childrenLaunched);
     printf("Workers ran for a combined time of %d seconds %d nanoseconds\n", totalSeconds, totalNano);
 
+    // Turn on alarm handler
+    signal(SIGALRM, signal_handler);
+    
+    // Set up alarm call for 60 seconds
+    alarm(60);
+
     shmdt(clock);
     clock = 0;
     shmctl(shm_id,IPC_RMID,NULL);
 
     return 0;
+}
+
+// Signal handler for alarm
+void signal_handler(int sig) {
+    printf("\nReceived SIGALRM (60 second timeout). Cleaning up...\n");
+    
+    // Send kill signal to all children based on their PIDs in process table
+    for (int i = 0; i < 20; i++) {
+        if (processTable[i].occupied && processTable[i].pid > 0) {
+            printf("Killing child process %d\n", processTable[i].pid);
+            kill(processTable[i].pid, SIGTERM);
+        }
+    }
+    
+    shmdt(clock);
+    clock = 0;
+    shmctl(shm_id,IPC_RMID,NULL);
+    
+    printf("OSS terminated due to 60 second timeout\n");
+    exit(1);
 }
