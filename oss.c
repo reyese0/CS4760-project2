@@ -25,7 +25,6 @@ typedef struct {
 } PCB;
 
 PCB processTable[20];
-Clock *clock;
 
 void print_help() {
     printf("How to use: oss [-h] [-s simul] [-t timelimitForChildren] [-i intervalInMsToLaunchChildren]\n");
@@ -181,6 +180,15 @@ int main(int argc, char *argv[]) {
                     }
                 }
 
+                //find empty slot in process table
+                int slot = -1;
+                for (int i = 0; i < MAX_PROCESSES; i++) {
+                    if (!processTable[i].occupied) {
+                        slot = i;
+                        break;
+                    }
+                }
+
                 pid_t child_pid = fork();
                 if (child_pid == 0) {
                     char secStr[20];
@@ -190,10 +198,10 @@ int main(int argc, char *argv[]) {
                     execl("./worker", "worker", secStr, nanoStr, NULL);
                 } else if (child_pid > 0) {
                     //parent process
-                    processTable[i].occupied = 1;
-                    processTable[i].pid = child_pid;
-                    processTable[i].startSeconds = clock->seconds;
-                    processTable[i].startNano = clock->nanoseconds;
+                    processTable[slot].occupied = 1;
+                    processTable[slot].pid = child_pid;
+                    processTable[slot].startSeconds = clock->seconds;
+                    processTable[slot].startNano = clock->nanoseconds;
                     childrenLaunched++;
                     lastLaunchTime = clock->seconds;
                     printf("Launched child process %d\n", child_pid);
