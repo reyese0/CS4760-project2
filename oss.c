@@ -52,14 +52,15 @@ int main(int argc, char *argv[]) {
                 exit(0);
             case 'n':
                 totalChildren = atoi(optarg);
+                break;
             case 's':
                 maxSimul = atoi(optarg);
                 break;
             case 't':
-                timeLimit = atoi(optarg);
+                timeLimit = atof(optarg);
                 break;
             case 'i':
-                interval = atoi(optarg);
+                interval = atof(optarg);
                 break;
             default:
                 fprintf(stderr, "Invalid option\n");
@@ -83,13 +84,7 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    int shm_key = ftok("oss.c", 0);
-    if (shm_key <= 0 ) {
-        fprintf(stderr,"Parent:... Error in ftok\n");
-        exit(1);
-    }
-
-    int shm_id = shmget(shm_key, sizeof(Clock), IPC_CREAT | 0666);
+    int shm_id = shmget(1234, sizeof(Clock), IPC_CREAT | 0666);
     if (shm_id < 0) {
         fprintf(stderr,"Parent:... Error in shmget\n");
         exit(1);
@@ -119,8 +114,8 @@ int main(int argc, char *argv[]) {
     int lastLaunchTime = 0;
 
     while (childrenLaunched < totalChildren || childrenTerminated < totalChildren) {
-        //advance clock by 1 million nanoseconds
-        clock->nanoseconds += 1000000;
+        //advance clock by 10000 nanoseconds
+        clock->nanoseconds += 10000;
 
         if (clock->nanoseconds >= 1000000000) {
             clock->seconds++;

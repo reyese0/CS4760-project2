@@ -23,13 +23,8 @@ int main(int argc, char *argv[]) {
     printf("Called with:\n");
     printf("Intervals: %d seconds, %d nanoseconds\n", atoi(argv[1]), atoi(argv[2]));
 
-    int shm_key = ftok("oss.c", 0);
-    if (shm_key <= 0 ) {
-        fprintf(stderr,"Worker:... Error in ftok\n");
-        exit(1);
-    }
 
-    int shm_id = shmget(shm_key, sizeof(Clock), 0666);
+    int shm_id = shmget(1234, sizeof(Clock), 0666);
     if (shm_id < 0) {
         fprintf(stderr,"Worker:... Error in shmget\n");
         exit(1);
