@@ -230,9 +230,29 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    // Calculate total run time
+    int totalSeconds = 0;
+    int totalNano = 0;
+    for (int i = 0; i < 20; i++) {
+        if (processTable[i].occupied) {
+            int runSec = clock->seconds - processTable[i].startSeconds;
+            int runNano = clock->nanoseconds - processTable[i].startNano;
+            if (runNano < 0) {
+                runSec--;
+                runNano += 1000000000;
+            }
+            totalSeconds += runSec;
+            totalNano += runNano;
+            if (totalNano >= 1000000000) {
+                totalSeconds += totalNano / 1000000000;
+                totalNano = totalNano % 1000000000;
+            }
+        }
+    }
+
     printf("OSS PID:%d Terminating\n", getpid());
     printf("%d workers were launched and terminated\n", childrenLaunched);
-    printf("Workers ran for a combined time of %d seconds %d nanoseconds\n", clock->seconds, clock->nanoseconds);
+    printf("Workers ran for a combined time of %d seconds %d nanoseconds\n", totalSeconds, totalNano);
 
     shmdt(clock);
     clock = 0;
