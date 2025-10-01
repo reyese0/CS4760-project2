@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
     int childrenLaunched = 0;
     int childrenTerminated = 0;
     char opt;
-    const char optstring[] = "hs:t:i:";
+    const char optstring[] = "hn:s:t:i:";
 
     while ((opt = getopt(argc, argv, optstring)) != -1) {
         switch (opt) {
