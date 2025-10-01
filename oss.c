@@ -182,7 +182,7 @@ int main(int argc, char *argv[]) {
 
                 //find empty slot in process table
                 int slot = -1;
-                for (int i = 0; i < MAX_PROCESSES; i++) {
+                for (int i = 0; i < 20; i++) {
                     if (!processTable[i].occupied) {
                         slot = i;
                         break;
