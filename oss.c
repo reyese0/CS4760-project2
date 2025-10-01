@@ -40,20 +40,17 @@ void signal_handler(int sig) {
     printf("\nReceived SIGALRM (60 second timeout). Cleaning up...\n");
     
     // Send kill signal to all children based on their PIDs in process table
-    for (int i = 0; i < MAX_PROCESSES; i++) {
+    for (int i = 0; i < 20; i++) {
         if (processTable[i].occupied && processTable[i].pid > 0) {
             printf("Killing child process %d\n", processTable[i].pid);
             kill(processTable[i].pid, SIGTERM);
         }
     }
     
-    //Free up shared memory
-    if (clock != NULL) {
-        shmdt(clock);
-    }
-    if (shm_id > 0) {
-        shmctl(shm_id, IPC_RMID, NULL);
-    }
+    shmdt(clock);
+    clock = 0;
+    shmctl(shm_id,IPC_RMID,NULL);
+    
     printf("OSS terminated due to 60 second timeout\n");
     exit(1);
 }
