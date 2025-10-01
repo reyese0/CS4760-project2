@@ -259,15 +259,16 @@ int main(int argc, char *argv[]) {
     printf("%d workers were launched and terminated\n", childrenLaunched);
     printf("Workers ran for a combined time of %d seconds %d nanoseconds\n", totalSeconds, totalNano);
 
+
+    shmdt(clock);
+    clock = 0;
+    shmctl(shm_id,IPC_RMID,NULL);
+
     // Turn on alarm handler
     signal(SIGALRM, signal_handler);
     
     // Set up alarm call for 60 seconds
     alarm(60);
-
-    shmdt(clock);
-    clock = 0;
-    shmctl(shm_id,IPC_RMID,NULL);
 
     return 0;
 }
@@ -283,11 +284,6 @@ void signal_handler(int sig) {
             kill(processTable[i].pid, SIGTERM);
         }
     }
-    
-    shmdt(clock);
-    clock = 0;
-    shmctl(shm_id,IPC_RMID,NULL);
-    
     printf("OSS terminated due to 60 second timeout\n");
     exit(1);
 }
